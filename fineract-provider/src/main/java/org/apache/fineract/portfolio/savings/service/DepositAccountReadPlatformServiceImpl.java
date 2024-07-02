@@ -1551,7 +1551,7 @@ public class DepositAccountReadPlatformServiceImpl implements DepositAccountRead
             sqlBuilder.append("FROM m_savings_account da ");
             sqlBuilder.append("inner join m_deposit_account_term_and_preclosure dat on dat.savings_account_id = da.id ");
             sqlBuilder.append("and dat.maturity_date is not null and dat.maturity_date <= '" + formattedToday + "' ");
-            log.info("this.sqlBuilder "+this.sqlBuilder);
+            log.info("sqlBuilder "+sqlBuilder);
             return sqlBuilder.toString();
             
         }
