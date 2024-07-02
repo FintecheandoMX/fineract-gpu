@@ -247,7 +247,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
 
         try {
             final String sql = "select " + this.savingAccountMapper.schema() + " where sa.id = ?";
-
+            log.info("sql "+sql);
             return this.jdbcTemplate.queryForObject(sql, this.savingAccountMapper, new Object[] { accountId }); // NOSONAR
         } catch (final EmptyResultDataAccessException e) {
             throw new SavingsAccountNotFoundException(accountId, e);
@@ -264,6 +264,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
             params[i] = element;
             i++;
         }
+        log.info("sql "+sql);
         return this.jdbcTemplate.query(String.format(sql, inSql), this.savingsAccountTransactionsForBatchMapper, params);
     }
 
@@ -281,7 +282,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
         sql = sql + " and (sa.interest_posted_till_date is null or sa.interest_posted_till_date <= ? ) ";
         // #audit backward compatibility
         sql = sql + " order by sa.id, tr.transaction_date, tr." + CREATED_DATE_DB_FIELD + ", tr.created_date, tr.id";
-
+        log.info("sql "+sql);
         List<SavingsAccountData> savingsAccountDataList = this.jdbcTemplate.query(sql, this.savingAccountMapperForInterestPosting, // NOSONAR
                 new Object[] { maxSavingsId, status, pageSize, yesterday });
         for (SavingsAccountData savingsAccountData : savingsAccountDataList) {
@@ -387,7 +388,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
             sqlBuilder.append("left join m_tax_component mtc on mtc.id = txd.tax_component_id ");
             sqlBuilder.append("left join acc_product_mapping apm on apm.product_id = sp.id and apm.financial_account_type=3 ");
             sqlBuilder.append("left join acc_product_mapping apm1 on apm1.product_id = sp.id and apm1.financial_account_type=2 ");
-
+            log.info("sqlBuilder "+sqlBuilder.toString());
             this.schemaSql = sqlBuilder.toString();
         }
 
@@ -791,7 +792,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
             sqlBuilder.append("left join m_appuser avbu on avbu.id = sa.activatedon_userid ");
             sqlBuilder.append("left join m_appuser cbu on cbu.id = sa.closedon_userid ");
             sqlBuilder.append("left join m_tax_group tg on tg.id = sa.tax_group_id ");
-
+            log.info("sqlBuilder "+sqlBuilder.toString());
             this.schemaSql = sqlBuilder.toString();
         }
 
@@ -1011,7 +1012,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
 
             sqlBuilder.append("from m_savings_account sa ");
             sqlBuilder.append("join m_savings_product sp ON sa.product_id = sp.id ");
-
+            log.info("sqlBuilder "+sqlBuilder.toString());
             this.schemaSql = sqlBuilder.toString();
         }
 
@@ -1192,6 +1193,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
         final String sql = "select " + this.transactionsMapper.schema()
                 + " where sa.id = ? and sa.deposit_type_enum = ? order by tr.transaction_date DESC," + " tr." + CREATED_DATE_DB_FIELD
                 + " DESC, tr.created_date DESC, tr.id DESC";
+        log.info("sql "+sql);
         return this.jdbcTemplate.query(sql, this.transactionsMapper, new Object[] { savingsId, depositAccountType.getValue() }); // NOSONAR
     }
 
@@ -1214,7 +1216,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
             final StringBuilder sqlBuilder = new StringBuilder(400);
             sqlBuilder.append("tr.id as transactionId, tr.ref_no as refNo ");
             sqlBuilder.append("from m_savings_account_transaction tr");
-
+            log.info("sqlBuilder "+sqlBuilder.toString());
             this.schemaSql = sqlBuilder.toString();
         }
 
@@ -1603,6 +1605,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
             sqlBuilder.append(" and sa.allow_overdraft = ?");
             queryParameters = new Object[] { clientId, overdraft };
         }
+        log.info("sqlBuilder "+sqlBuilder.toString());
         return this.jdbcTemplate.query(sqlBuilder.toString(), accountMapperForLookup, queryParameters);
 
     }
@@ -1619,7 +1622,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
                 + "from m_savings_account_transaction as sat where sat.is_reversed = false and sat.is_reversal = false"
                 + " and sat.transaction_type_enum in (1,2) and sat.savings_account_id = sa.id)";
         sql.append(" and ").append(sqlGenerator.dateDiff("?", compareDate)).append(" >= sp.days_to_inactive ");
-
+        log.info("sql "+sql.toString());
         try {
             ret = this.jdbcTemplate.queryForList(sql.toString(), new Object[] { tenantLocalDate }, Long.class);
         } catch (EmptyResultDataAccessException e) {
@@ -1643,7 +1646,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
                 "(select COALESCE(max(sat.transaction_date),sa.activatedon_date) from m_savings_account_transaction as sat where sat.is_reversed = false and sat.is_reversal = false and sat.transaction_type_enum in (1,2) and sat.savings_account_id = sa.id)")
                 + " ");
         sql.append(" >= sp.days_to_dormancy ");
-
+        log.info("sql "+sql);
         try {
             ret = this.jdbcTemplate.queryForList(sql.toString(), new Object[] { tenantLocalDate }, Long.class);
         } catch (EmptyResultDataAccessException e) {
@@ -1667,7 +1670,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
                 "(select COALESCE(max(sat.transaction_date),sa.activatedon_date) from m_savings_account_transaction as sat where sat.is_reversed = false and sat.is_reversal = false and sat.transaction_type_enum in (1,2) and sat.savings_account_id = sa.id)")
                 + " ");
         sql.append(" >= sp.days_to_escheat ");
-
+        log.info("sql "+sql);
         try {
             ret = this.jdbcTemplate.queryForList(sql.toString(), Long.class, new Object[] { tenantLocalDate });
         } catch (EmptyResultDataAccessException e) {
