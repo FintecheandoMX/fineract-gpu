@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.fineract.infrastructure.core.data.EnumOptionData;
 import org.apache.fineract.infrastructure.core.data.PaginationParameters;
 import org.apache.fineract.infrastructure.core.data.PaginationParametersDataValidator;
@@ -99,6 +100,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.CollectionUtils;
 
 @RequiredArgsConstructor
+@Slf4j
 public class DepositAccountReadPlatformServiceImpl implements DepositAccountReadPlatformService {
 
     private static final FixedDepositAccountMapper FIXED_DEPOSIT_ACCOUNT_MAPPER = new FixedDepositAccountMapper();
@@ -1269,6 +1271,7 @@ public class DepositAccountReadPlatformServiceImpl implements DepositAccountRead
             selectTablesSqlBuilder.append("left join m_tax_group tg on tg.id = sa.tax_group_id  ");
 
             this.selectTablesSql = selectTablesSqlBuilder.toString();
+            log.info("this.selectTablesSql "+this.selectTablesSql);
         }
 
         public String selectFieldsSql() {
@@ -1392,6 +1395,7 @@ public class DepositAccountReadPlatformServiceImpl implements DepositAccountRead
             sqlBuilder.append(super.selectTablesSql());
 
             this.schemaSql = sqlBuilder.toString();
+            log.info("this.schemaSql "+this.schemaSql);
         }
 
         @Override
@@ -1547,8 +1551,9 @@ public class DepositAccountReadPlatformServiceImpl implements DepositAccountRead
             sqlBuilder.append("FROM m_savings_account da ");
             sqlBuilder.append("inner join m_deposit_account_term_and_preclosure dat on dat.savings_account_id = da.id ");
             sqlBuilder.append("and dat.maturity_date is not null and dat.maturity_date <= '" + formattedToday + "' ");
-
+            log.info("this.sqlBuilder "+this.sqlBuilder);
             return sqlBuilder.toString();
+            
         }
 
         @Override
@@ -1601,6 +1606,7 @@ public class DepositAccountReadPlatformServiceImpl implements DepositAccountRead
             sqlBuilder.append("AND s.is_active = TRUE GROUP BY s.savings_account_id)sac ON sac.savings_account_id = sa.id ");
 
             this.schemaSql = sqlBuilder.toString();
+            log.info("this.schemaSql "+this.schemaSql);
         }
 
         public String schema() {

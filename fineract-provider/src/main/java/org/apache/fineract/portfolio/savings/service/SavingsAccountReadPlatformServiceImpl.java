@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.accounting.common.AccountingRuleType;
 import org.apache.fineract.accounting.glaccount.data.GLAccountData;
@@ -94,6 +95,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.CollectionUtils;
 
+@Slf4j
 public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountReadPlatformService {
 
     private final PlatformSecurityContext context;
@@ -1379,6 +1381,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
             sqlBuilder.append("join m_currency curr on curr.code = sa.currency_code ");
 
             this.schemaSql = sqlBuilder.toString();
+            log.info("this.schemaSql "+this.schemaSql);
         }
 
         public String schema() {
@@ -1455,6 +1458,7 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
             sqlBuilder.append("left join m_tax_group tg on tg.id = sp.tax_group_id  ");
 
             this.schemaSql = sqlBuilder.toString();
+            log.info("this.schemaSql "+this.schemaSql);
         }
 
         public String schema() {
