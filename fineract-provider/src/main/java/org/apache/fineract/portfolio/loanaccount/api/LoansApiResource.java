@@ -130,6 +130,7 @@ import org.apache.fineract.portfolio.loanaccount.data.LoanTransactionData;
 import org.apache.fineract.portfolio.loanaccount.data.PaidInAdvanceData;
 import org.apache.fineract.portfolio.loanaccount.data.RepaymentScheduleRelatedLoanData;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanStatus;
+import org.apache.fineract.portfolio.loanaccount.domain.LoanSummaryBalancesRepository;
 import org.apache.fineract.portfolio.loanaccount.domain.LoanTermVariationType;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanNotFoundException;
 import org.apache.fineract.portfolio.loanaccount.exception.LoanTemplateTypeRequiredException;
@@ -281,6 +282,7 @@ public class LoansApiResource {
     private final DefaultToApiJsonSerializer<LoanDelinquencyTagHistoryData> jsonSerializerTagHistory;
     private final DelinquencyReadPlatformService delinquencyReadPlatformService;
     private final SqlValidator sqlValidator;
+    private final LoanSummaryBalancesRepository loanSummaryBalancesRepository;
 
     /*
      * This template API is used for loan approval, ideally this should be invoked on loan that are pending for
@@ -910,7 +912,6 @@ public class LoansApiResource {
 
         final Set<String> mandatoryResponseParameters = new HashSet<>();
         final Set<String> associationParameters = ApiParameterHelper.extractAssociationsForResponseIfProvided(uriInfo.getQueryParameters());
-        final Collection<LoanTransactionData> currentLoanRepayments = this.loanReadPlatformService.retrieveLoanTransactions(resolvedLoanId);
         if (!associationParameters.isEmpty()) {
             if (associationParameters.contains(DataTableApiConstant.allAssociateParamName)) {
                 associationParameters.addAll(Arrays.asList(DataTableApiConstant.repaymentScheduleAssociateParamName,
@@ -933,9 +934,7 @@ public class LoansApiResource {
 
             if (associationParameters.contains(DataTableApiConstant.transactionsAssociateParamName)) {
                 mandatoryResponseParameters.add(DataTableApiConstant.transactionsAssociateParamName);
-                if (!CollectionUtils.isEmpty(currentLoanRepayments)) {
-                    loanRepayments = currentLoanRepayments;
-                }
+                loanRepayments = this.loanReadPlatformService.retrieveLoanTransactions(resolvedLoanId);
             }
 
             if (associationParameters.contains(DataTableApiConstant.multiDisburseDetailsAssociateParamName)
@@ -1114,8 +1113,9 @@ public class LoansApiResource {
 
         // updating summary with transaction amounts summary
         if (loanBasicDetails.getSummary() != null) {
-            loanBasicDetails
-                    .setSummary(LoanSummaryData.withTransactionAmountsSummary(loanBasicDetails.getSummary(), currentLoanRepayments));
+            loanBasicDetails.setSummary(LoanSummaryData.withTransactionAmountsSummary(loanBasicDetails.getSummary(), repaymentSchedule,
+                    loanSummaryBalancesRepository.retrieveLoanSummaryBalancesByTransactionType(loanBasicDetails.getId(),
+                            LoanApiConstants.LOAN_SUMMARY_TRANSACTION_TYPES)));
         }
 
         final LoanAccountData loanAccount = LoanAccountData.associationsAndTemplate(loanBasicDetails, repaymentSchedule, loanRepayments,

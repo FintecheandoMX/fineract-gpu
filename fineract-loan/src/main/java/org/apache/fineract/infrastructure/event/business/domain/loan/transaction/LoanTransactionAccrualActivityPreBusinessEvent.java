@@ -16,12 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.loanaccount.service;
+package org.apache.fineract.infrastructure.event.business.domain.loan.transaction;
 
-import java.util.List;
-import org.apache.fineract.portfolio.loanaccount.data.LoanChargePaidByData;
+import org.apache.fineract.infrastructure.event.business.domain.loan.LoanBusinessEvent;
+import org.apache.fineract.portfolio.loanaccount.domain.Loan;
 
-public interface LoanChargePaidByReadPlatformService {
+public class LoanTransactionAccrualActivityPreBusinessEvent extends LoanBusinessEvent {
 
-    List<LoanChargePaidByData> getLoanChargesPaidByTransactionId(Long id);
+    private static final String TYPE = "LoanTransactionAccrualActivityPreBusinessEvent";
+
+    public LoanTransactionAccrualActivityPreBusinessEvent(Loan value) {
+        super(value);
+    }
+
+    @Override
+    public String getType() {
+        return TYPE;
+    }
 }
