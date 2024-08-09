@@ -19,17 +19,19 @@
 package org.apache.fineract.portfolio.loanaccount.service;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import org.apache.fineract.infrastructure.core.exception.MultiException;
-import org.apache.fineract.portfolio.loanaccount.data.LoanScheduleAccrualData;
 import org.apache.fineract.portfolio.loanaccount.domain.Loan;
+import org.springframework.transaction.annotation.Transactional;
 
-public interface LoanAccrualPlatformService {
+public interface LoanAccrualActivityProcessingService {
 
-    void addPeriodicAccruals(LocalDate tilldate) throws MultiException;
+    @Transactional
+    void makeAccrualActivityTransaction(Long loanId, LocalDate currentDate);
 
-    void addPeriodicAccruals(LocalDate tilldate, Loan loan) throws MultiException;
+    Loan makeAccrualActivityTransaction(Loan loan, LocalDate currentDate);
 
-    void addPeriodicAccruals(LocalDate tilldate, Collection<LoanScheduleAccrualData> loanScheduleAccrualDatas) throws MultiException;
+    @Transactional
+    void processAccrualActivityForLoanClosure(Loan loan);
 
+    @Transactional
+    void processAccrualActivityForLoanReopen(Loan loan);
 }

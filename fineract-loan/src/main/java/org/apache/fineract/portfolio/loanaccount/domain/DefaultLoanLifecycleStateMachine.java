@@ -49,6 +49,20 @@ public class DefaultLoanLifecycleStateMachine implements LoanLifecycleStateMachi
                 // in case of Loan creation, a LoanCreatedBusinessEvent is also raised, no need to send a status change
                 businessEventNotifierService.notifyPostBusinessEvent(new LoanStatusChangedBusinessEvent(loan));
             }
+
+            // set mandatory field states based on new status after the transition
+            switch (newStatus) {
+                case ACTIVE -> {
+                    if (loan.getClosedOnDate() != null) {
+                        loan.setClosedOnDate(null);
+                    }
+                    if (loan.getOverpaidOnDate() != null) {
+                        loan.setOverpaidOnDate(null);
+                    }
+                }
+                default -> {
+                }
+            }
         }
     }
 
@@ -85,7 +99,7 @@ public class DefaultLoanLifecycleStateMachine implements LoanLifecycleStateMachi
                 if (anyOfAllowedWhenComingFrom(from, LoanStatus.APPROVED, LoanStatus.CLOSED_OBLIGATIONS_MET)) {
                     newState = activeTransition();
                 } else if (from.isOverpaid() && loan.getTotalOverpaidAsMoney().isZero()) {
-                    if (loan.getLoanSummary().getTotalOutstanding(loan.getCurrency()).isZero()) {
+                    if (loan.getSummary().getTotalOutstanding(loan.getCurrency()).isZero()) {
                         newState = closeObligationsMetTransition();
                     } else {
                         newState = activeTransition();

@@ -16,18 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.fineract.portfolio.loanaccount.service;
+package org.apache.fineract.portfolio.loanproduct.domain;
 
-import java.time.LocalDate;
-import java.util.Collection;
-import org.apache.fineract.portfolio.loanaccount.data.LoanScheduleAccrualData;
+// TODO FINERACT-1932-Fineract modularization: Move to fineract-progressive-loan module after refactor of Loan and LoanProduct classes
 
-public interface LoanAccrualWritePlatformService {
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import java.util.List;
+import org.apache.fineract.infrastructure.core.data.GenericEnumListConverter;
 
-    void addAccrualAccounting(Long loanId, Collection<LoanScheduleAccrualData> loanScheduleAccrualDatas) throws Exception;
+@Converter(autoApply = true)
+public class SupportedInterestRefundTypesListConverter extends GenericEnumListConverter<LoanSupportedInterestRefundTypes>
+        implements AttributeConverter<List<LoanSupportedInterestRefundTypes>, String> {
 
-    void addPeriodicAccruals(LocalDate tilldate, Long loanId, Collection<LoanScheduleAccrualData> loanScheduleAccrualDatas)
-            throws Exception;
+    @Override
+    public boolean isUnique() {
+        return true;
+    }
 
-    void addIncomeAndAccrualTransactions(Long loanId) throws Exception;
+    public SupportedInterestRefundTypesListConverter() {
+        super(LoanSupportedInterestRefundTypes.class);
+    }
+
 }
