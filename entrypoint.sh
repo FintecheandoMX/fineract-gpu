@@ -26,4 +26,6 @@ set -ex
 
 tornado --devices
 
-tornado -jar fineract-provider-*.jar -Duser.home=/tmp -Dfile.encoding=UTF-8 -Duser.timezone=UTC -Djava.security.egd=file:/dev/./urandom
+#-Duser.home=/tmp -Dfile.encoding=UTF-8 -Duser.timezone=UTC -Djava.security.egd=file:/dev/./urandom
+
+tornado -jar fineract-provider-*.jar 
